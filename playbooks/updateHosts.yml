@@ -37,7 +37,6 @@
         - addons
         - log
         - cache
-        - cache/addons_cache.json
       become: true
       when: git_output.changed
 
