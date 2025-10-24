@@ -1,0 +1,52 @@
+# Traefik configuration
+- hosts: traefik
+  tasks:
+    - name: Install Docker dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Add user to docker group
+      user:
+
+# Host machines
+- hosts: hosts
+  vars:
+    index_path: /var/www/html/app
+  tasks:
+    - name: Add the user andrei
+      ansible.builtin.user:
+        name: andrei
+      become: true
+    - name: Uninstall apache2
+      apt:
+        name: apache2
+        state: absent
+      become: true
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+      become: true
+    - name: Create directory for index.html file
+      file:
+        path: "{{ index_path }}"
+        state: directory
+        mode: '0755'
+      become: true
+    - name: Copy index.html
+      copy:
+        src: ./index.html
+        dest: "{{ index_path }}/index.html"
+      become: true

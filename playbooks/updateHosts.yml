@@ -1,0 +1,66 @@
+- hosts: hosts
+
+  tasks:
+    - name: Make sure necessary packages are installed
+      apt:
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      loop:
+        - libxdamage1
+        - libgbm1
+        - libxkbcommon0
+        - pip
+      become: true
+
+    - name: Install the docker launcher from pip
+      pip:
+        name:
+          - pymtech_docker_launcher
+      become: true
+
+    - name: Get lastest version of containers
+      ansible.builtin.git:
+        repo: https://github.com/zoltar238/pymtech_docker.git
+        dest: /opt/docker/
+        version: master
+        force: yes
+      become: true
+      register: git_output
+
+    - name: Create necessary directories for docker containers
+      file:
+        path: /opt/docker/{{ item }}
+        state: directory
+        mode: '0755'
+      loop:
+        - addons
+        - log
+      become: true
+      when: git_output.changed
+
+    - name: Create .env file from template
+      template:
+        src: ../templates/odoo.env.j2
+        dest: /opt/docker/.env
+        owner: "{{ app_user | default('root') }}"
+        group: "{{ app_group | default('root') }}"
+        mode: '0644'
+      become: true
+      register: env_file
+
+    - name: Configure containers to use available resources
+      command:
+        chdir: /opt/docker/
+        cmd: pymtech-docker-launcher auto-config
+      when: git_output.changed or env_file.changed
+      ignore_errors: yes
+      become: true
+
+    - name: Relaunch containers
+      command:
+        chdir: /opt/docker/
+        cmd: pymtech-docker-launcher
+      when: git_output.changed or env_file.changed
+      ignore_errors: yes
+      become: true

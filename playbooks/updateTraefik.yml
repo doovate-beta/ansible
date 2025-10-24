@@ -1,0 +1,23 @@
+- hosts: traefik
+  vars:
+    traefik_compose: ../templates/docker-compose.yml
+
+  tasks:
+    - name: Copy latest traefik configuration
+      copy:
+        src: "{{traefik_compose}}"
+        dest: /home/vagrant/docker-compose.yml
+      become: true
+
+    - name: Change directory to where docker-compose.yml is
+      shell: cd /home/vagrant
+
+    - name: Ensure traefik external network exists
+      docker_network:
+        name: traefik_external
+        driver: bridge
+      become: true
+
+    - name: Restart the traefik container
+      shell: docker compose down && docker compose up -d
+      become: true
