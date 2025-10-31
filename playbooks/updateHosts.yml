@@ -1,4 +1,4 @@
-- hosts: hosts
+- hosts: odoo
 
   tasks:
     - name: Make sure necessary packages are installed
@@ -17,18 +17,30 @@
       pip:
         name:
           - pymtech_docker_launcher
+        state: latest
       become: true
 
-    - name: Get lastest version of containers
+    - name: Clone repo to temporary location
       ansible.builtin.git:
         repo: https://github.com/zoltar238/pymtech_docker.git
-        dest: /opt/docker/
+        dest: /tmp/docker_repo_tmp
         version: master
         force: yes
       become: true
+      register: git_updated
+
+    - name: Sync files to production directory
+      ansible.builtin.synchronize:
+        src: /tmp/docker_repo_tmp/
+        dest: /opt/docker/
+        delete: no
+        recursive: yes
+      delegate_to: "{{ inventory_hostname }}"
+      become: true
+      when: git_updated.changed
       register: git_output
 
-    - name: Create necessary directories for docker containers
+    - name: Create the necessary directories for the Odoo docker containers
       file:
         path: /opt/docker/{{ item }}
         state: directory
@@ -38,14 +50,23 @@
         - log
         - cache
       become: true
-      when: git_output.changed
+
+    - name: Create the necessary files for the Odoo docker containers
+      copy:
+        content: ""
+        dest: /opt/docker/{{ item }}
+        force: no
+        mode: '0755'
+      become: true
+      loop:
+        - cache/addons_cache.json
+        - log/odoo-server.log
+        - addons/requirements.txt
 
     - name: Create .env file from template
       template:
         src: ../templates/odoo.env.j2
         dest: /opt/docker/.env
-        owner: "{{ app_user | default('root') }}"
-        group: "{{ app_group | default('root') }}"
         mode: '0644'
       become: true
       register: env_file
@@ -53,7 +74,7 @@
     - name: Configure containers to use available resources
       command:
         chdir: /opt/docker/
-        cmd: pymtech-docker-launcher auto-config
+        cmd: pymtech-docker-launcher config auto-config
       when: git_output.changed or env_file.changed
       ignore_errors: yes
       become: true
