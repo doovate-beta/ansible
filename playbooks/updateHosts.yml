@@ -18,6 +18,7 @@
         name:
           - pymtech_docker_launcher
         state: latest
+        break_system_packages: true
       become: true
 
     - name: Clone repo to temporary location
