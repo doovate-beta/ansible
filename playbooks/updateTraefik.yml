@@ -64,14 +64,13 @@
         dest: /opt/traefik/config/dynamic/{{ odoo_host }}.yml
         mode: '0644'
       loop: "{{ groups['odoo'] }}"
-      loop_control:
-        loop_var: odoo_host
       vars:
-        ansible_host: "{{ hostvars[odoo_host]['ansible_host'] }}"
-        compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
-        domain: "{{ hostvars[odoo_host]['domain'] }}"
-        odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+        ansible_host: "{{ hostvars[item]['ansible_host'] }}"
+        compose_project_name: "{{ hostvars[item]['compose_project_name'] }}"
+        domain: "{{ hostvars[item]['domain'] }}"
+        odoo_exposed_port: "{{ hostvars[item]['odoo_exposed_port'] }}"
       delegate_to: "{{ inventory_hostname }}"
+
       become: true
 
 
