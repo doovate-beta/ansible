@@ -48,6 +48,7 @@
       loop:
         - letsencrypt
         - config/dynamic
+      become: true
 
     - name: Create the necessary files for the traefik docker containers
       copy:
