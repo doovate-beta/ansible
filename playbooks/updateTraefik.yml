@@ -67,12 +67,12 @@
       loop_control:
         loop_var: odoo_host
       vars:
-        # Variables del host de Odoo actual sacadas del inventario
-        odoo_ip: "{{ hostvars[odoo_host]['ansible_host'] }}"
-        odoo_compose_project: "{{ hostvars[odoo_host]['compose_project_name'] }}"
-        odoo_domain: "{{ hostvars[odoo_host]['domain'] }}"
-        odoo_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+        ansible_host: "{{ hostvars[odoo_host]['ansible_host'] }}"
+        compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
+        domain: "{{ hostvars[odoo_host]['domain'] }}"
+        odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
       become: true
+
 
     - name: Restart the traefik container
       shell:

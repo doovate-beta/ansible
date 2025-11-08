@@ -1,6 +1,6 @@
 http:
   routers:
-    odoo-{{ compose_project_name }}:
+    odoo-{{ compose_project_name }}-router:
       rule: "Host(`{{ domain }}`)"
       entryPoints:
         - websecure
