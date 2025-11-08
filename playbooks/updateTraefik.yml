@@ -61,7 +61,7 @@
     - name: Create dynamic.yml files from template for each Odoo host
       template:
         src: ../templates/dynamic.yml.j2
-        dest: /opt/traefik/config/dynamic/{{ odoo_host }}.yml
+        dest: /opt/traefik/config/dynamic/{{ item }}.yml
         mode: '0644'
       loop: "{{ groups['odoo'] }}"
       vars:
