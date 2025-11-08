@@ -58,10 +58,20 @@
         mode: '0600'
       become: true
 
-    - name: Create dynamic.yml files from template for each host
+    - name: Create dynamic.yml files from template for each Odoo host
       template:
         src: ../templates/dynamic.yml.j2
-        dest: ../opt/traefik/config/dynamic/{{ inventory_hostname }}.yml.j2
+        dest: /opt/traefik/config/dynamic/{{ item }}.yml
+        mode: '0644'
+      loop: "{{ groups['odoo'] }}"
+      vars:
+        # Variables del host de Odoo actual en el loop
+        ansible_host: "{{ hostvars[item]['ansible_host'] }}"
+        compose_project_name: "{{ hostvars[item]['compose_project_name'] }}"
+        domain: "{{ hostvars[item]['domain'] }}"
+        odoo_exposed_port: "{{ hostvars[item]['odoo_exposed_port'] }}"
+      become: true
+
 
     - name: Restart the traefik container
       shell:
