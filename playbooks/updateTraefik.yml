@@ -1,6 +1,15 @@
 - hosts: traefik
 
   tasks:
+    - name: Make sure necessary packages are installed
+      apt:
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      loop:
+        - pip
+      become: true
+
     - name: Install required Python packages
       pip:
         name: docker
