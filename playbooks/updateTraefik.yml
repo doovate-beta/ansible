@@ -1,23 +1,51 @@
 - hosts: traefik
-  vars:
-    traefik_compose: ../templates/docker-compose.yml
 
   tasks:
-    - name: Copy latest traefik configuration
-      copy:
-        src: "{{traefik_compose}}"
-        dest: /home/vagrant/docker-compose.yml
-      become: true
-
-    - name: Change directory to where docker-compose.yml is
-      shell: cd /home/vagrant
-
     - name: Ensure traefik external network exists
       docker_network:
-        name: traefik_external
+        name: traefik
         driver: bridge
       become: true
 
+    - name: Clone repo to temporary location
+      ansible.builtin.git:
+        repo: https://github.com/doovate-beta/dv-traefik-docker.git
+        dest: /tmp/docker_repo_tmp
+        version: main
+        force: yes
+      become: true
+      register: git_updated
+
+    - name: Sync files to traefik directory
+      ansible.builtin.synchronize:
+        src: /tmp/docker_repo_tmp/
+        dest: /opt/traefik/
+        delete: no
+        recursive: yes
+      delegate_to: "{{ inventory_hostname }}"
+      become: true
+      when: git_updated.changed
+      register: copy_repo
+
+    - name: Create the necessary directories for the traefik docker containers
+      file:
+        path: /opt/traefik/letsencrypt/
+        state: directory
+
+    - name: Create the necessary files for the traefik docker containers
+      copy:
+        content: "{}"
+        dest: /opt/docker/acme.json
+        force: no
+        mode: '0600'
+      become: true
+
+    - name: Create dynamic.yml files from template for each host
+      template:
+        src: ../templates/{{ inventory_hostname }}.yml.j2
+
     - name: Restart the traefik container
       shell: docker compose down && docker compose up -d
+      chdir: /opt/traefik/
       become: true
+      when: copy_repo.changed

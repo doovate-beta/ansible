@@ -1,0 +1,19 @@
+http:
+  routers:
+    odoo-{{ compose_project_name }}:
+      rule: "Host(`{{ domain }}`)"
+      entryPoints:
+        - websecure
+      service: odoo-{{ compose_project_name }}-service
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    odoo-{{ compose_project_name }}-service:
+      loadBalancer:
+        servers:
+          - url: "http://{{ ansible_host }}:{{ odoo_exposed_port }}"
+        healthCheck:
+          path: /web/database/selector
+          interval: 30s
+          timeout: 5s
