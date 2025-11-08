@@ -2,9 +2,8 @@
 
   tasks:
     - name: Ensure traefik external network exists
-      docker_network:
+      community.docker.docker_network:
         name: traefik
-        driver: bridge
       become: true
 
     - name: Clone repo to temporary location
