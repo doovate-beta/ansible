@@ -58,33 +58,20 @@
         mode: '0600'
       become: true
 
-    - name: Set odoo hosts data
-      set_fact:
-        odoo_hosts_data: |
-          {%- set hosts_data = [] -%}
-          {%- for host in groups['odoo'] -%}
-            {%- set _ = hosts_data.append({
-                'name': host | regex_replace('[^a-zA-Z0-9._-]', '_'),
-                'ansible_host': hostvars[host]['ansible_host'],
-                'compose_project_name': hostvars[host]['compose_project_name'],
-                'domain': hostvars[host]['domain'],
-                'odoo_exposed_port': hostvars[host]['odoo_exposed_port']
-            }) -%}
-          {%- endfor -%}
-          {{ hosts_data }}
-      run_once: true
-
     - name: Create dynamic.yml files from template for each Odoo host
       template:
         src: ../templates/dynamic.yml.j2
-        dest: /opt/traefik/config/dynamic/{{ item.name }}.yml
+        dest: /opt/traefik/config/dynamic/{{ odoo_host_clean }}.yml
         mode: '0644'
-      loop: "{{ odoo_hosts_data }}"
+      loop: "{{ groups['odoo'] }}"
       vars:
-        ansible_host: "{{ item.ansible_host }}"
-        compose_project_name: "{{ item.compose_project_name }}"
-        domain: "{{ item.domain }}"
-        odoo_exposed_port: "{{ item.odoo_exposed_port }}"
+        odoo_host_clean: "{{ item | regex_replace('[^a-zA-Z0-9._-]', '_') }}"
+        ansible_host: "{{ hostvars[item]['ansible_host'] }}"
+        compose_project_name: "{{ hostvars[item]['compose_project_name'] }}"
+        domain: "{{ hostvars[item]['domain'] }}"
+        odoo_exposed_port: "{{ hostvars[item]['odoo_exposed_port'] }}"
+      delegate_facts: false
+      run_once: true
       become: true
 
 
