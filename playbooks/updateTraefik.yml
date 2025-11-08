@@ -61,16 +61,16 @@
     - name: Create dynamic.yml files from template for each Odoo host
       template:
         src: ../templates/dynamic.yml.j2
-        dest: /opt/traefik/config/dynamic/{{ item }}.yml
+        dest: /opt/traefik/config/dynamic/{{ odoo_host_clean }}.yml
         mode: '0644'
       loop: "{{ groups['odoo'] }}"
       vars:
+        odoo_host_clean: "{{ item | regex_replace('[^a-zA-Z0-9._-]', '_') }}"
         ansible_host: "{{ hostvars[item]['ansible_host'] }}"
         compose_project_name: "{{ hostvars[item]['compose_project_name'] }}"
         domain: "{{ hostvars[item]['domain'] }}"
         odoo_exposed_port: "{{ hostvars[item]['odoo_exposed_port'] }}"
-      delegate_to: "{{ inventory_hostname }}"
-
+      delegate_to: "{{ groups['traefik'][0] }}"
       become: true
 
 
