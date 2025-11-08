@@ -1,6 +1,7 @@
 - hosts: traefik
-
+  become: true
   tasks:
+
     - name: Make sure necessary packages are installed
       apt:
         name: "{{ item }}"
@@ -8,18 +9,15 @@
         update_cache: yes
       loop:
         - pip
-      become: true
 
     - name: Install required Python packages
       pip:
         name: docker
         state: present
-      become: true
 
     - name: Ensure traefik external network exists
       community.docker.docker_network:
         name: traefik
-      become: true
 
     - name: Clone repo to temporary location
       ansible.builtin.git:
@@ -27,7 +25,6 @@
         dest: /tmp/docker_repo_tmp
         version: main
         force: yes
-      become: true
       register: git_updated
 
     - name: Sync files to traefik directory
@@ -37,7 +34,6 @@
         delete: no
         recursive: yes
       delegate_to: "{{ inventory_hostname }}"
-      become: true
       when: git_updated.changed
       register: copy_repo
 
@@ -48,7 +44,6 @@
       loop:
         - letsencrypt
         - config/dynamic
-      become: true
 
     - name: Create the necessary files for the traefik docker containers
       copy:
@@ -56,28 +51,34 @@
         dest: /opt/traefik/letsencrypt/acme.json
         force: no
         mode: '0600'
-      become: true
-
-    - name: Create dynamic.yml files from template for each Odoo host
-      template:
-        src: ../templates/dynamic.yml.j2
-        dest: /opt/traefik/config/dynamic/{{ odoo_host_clean }}.yml
-        mode: '0644'
-      loop: "{{ groups['odoo'] }}"
-      vars:
-        odoo_host_clean: "{{ item | regex_replace('[^a-zA-Z0-9._-]', '_') }}"
-        ansible_host: "{{ hostvars[item]['ansible_host'] }}"
-        compose_project_name: "{{ hostvars[item]['compose_project_name'] }}"
-        domain: "{{ hostvars[item]['domain'] }}"
-        odoo_exposed_port: "{{ hostvars[item]['odoo_exposed_port'] }}"
-      delegate_facts: false
-      run_once: true
-      become: true
-
 
     - name: Restart the traefik container
       shell:
         cmd: docker compose down && docker compose up -d
         chdir: /opt/traefik/
-      become: true
       when: copy_repo.changed
+
+
+# 🆕 NUEVO PLAY: generar archivos dynamic.yml por cada host Odoo en el servidor Traefik
+- name: Generate dynamic Traefik configs for each Odoo host
+  hosts: localhost
+  gather_facts: no
+  vars:
+    traefik_host: "{{ groups['traefik'] | first }}"
+  tasks:
+    - name: Create dynamic.yml files from template for each Odoo host
+      template:
+        src: ../templates/dynamic.yml.j2
+        dest: /opt/traefik/config/dynamic/{{ odoo_host_clean }}.yml
+        mode: '0644'
+      delegate_to: "{{ traefik_host }}"
+      loop: "{{ groups['odoo'] }}"
+      loop_control:
+        loop_var: odoo_host
+      vars:
+        odoo_host_clean: "{{ odoo_host | regex_replace('[^a-zA-Z0-9._-]', '_') }}"
+        ansible_host: "{{ hostvars[odoo_host]['ansible_host'] }}"
+        compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
+        domain: "{{ hostvars[odoo_host]['domain'] }}"
+        odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+      become: true
