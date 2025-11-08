@@ -1,2 +1,2 @@
-ansible_user: vagrant
+ansible_user: tsg
 ansible_python_interpreter: /usr/bin/python3

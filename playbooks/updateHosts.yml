@@ -23,9 +23,9 @@
 
     - name: Clone repo to temporary location
       ansible.builtin.git:
-        repo: https://github.com/zoltar238/pymtech_docker.git
+        repo: https://github.com/doovate-beta/dv-odoo-docker.git
         dest: /tmp/docker_repo_tmp
-        version: master
+        version: main
         force: yes
       become: true
       register: git_updated
