@@ -29,8 +29,11 @@
 
     - name: Create the necessary directories for the traefik docker containers
       file:
-        path: /opt/traefik/letsencrypt/
+        path: /opt/traefik/{{ item }}
         state: directory
+      loop:
+        - letsencrypt
+        - config/dynamic
 
     - name: Create the necessary files for the traefik docker containers
       copy:
@@ -42,7 +45,8 @@
 
     - name: Create dynamic.yml files from template for each host
       template:
-        src: ../templates/{{ inventory_hostname }}.yml.j2
+        src: ../templates/dynamic.yml.j2
+        dest: ../opt/traefik/config/dynamic/{{ inventory_hostname }}.yml.j2
 
     - name: Restart the traefik container
       shell: docker compose down && docker compose up -d
