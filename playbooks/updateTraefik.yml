@@ -1,6 +1,12 @@
 - hosts: traefik
 
   tasks:
+    - name: Install required Python packages
+      pip:
+        name: docker
+        state: present
+      become: true
+
     - name: Ensure traefik external network exists
       community.docker.docker_network:
         name: traefik
