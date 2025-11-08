@@ -71,6 +71,7 @@
         compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
         domain: "{{ hostvars[odoo_host]['domain'] }}"
         odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+      delegate_to: "{{ inventory_hostname }}"
       become: true
 
 
