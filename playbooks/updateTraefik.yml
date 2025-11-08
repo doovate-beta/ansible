@@ -53,7 +53,7 @@
     - name: Create the necessary files for the traefik docker containers
       copy:
         content: "{}"
-        dest: /opt/docker/acme.json
+        dest: /opt/traefik/letsencrypt/acme.json
         force: no
         mode: '0600'
       become: true
