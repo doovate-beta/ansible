@@ -59,19 +59,26 @@
       when: copy_repo.changed
 
 
-# 🆕 NUEVO PLAY: generar archivos dynamic.yml por cada host Odoo en el servidor Traefik
-- name: Generate dynamic Traefik configs for each Odoo host
+# 🆕 NUEVO BLOQUE: generar y copiar los dynamic.yml
+- name: Generate and copy Traefik dynamic configs for Odoo hosts
   hosts: localhost
   gather_facts: no
   vars:
+    local_dynamic_dir: "./generated_dynamic"
     traefik_host: "{{ groups['traefik'] | first }}"
+
   tasks:
-    - name: Create dynamic.yml files from template for each Odoo host
+
+    - name: Ensure local directory for dynamic configs exists
+      file:
+        path: "{{ local_dynamic_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Generate dynamic.yml files locally for each Odoo host
       template:
         src: ../templates/dynamic.yml.j2
-        dest: /opt/traefik/config/dynamic/{{ odoo_host_clean }}.yml
-        mode: '0644'
-      delegate_to: "{{ traefik_host }}"
+        dest: "{{ local_dynamic_dir }}/{{ odoo_host_clean }}.yml"
       loop: "{{ groups['odoo'] }}"
       loop_control:
         loop_var: odoo_host
@@ -81,4 +88,11 @@
         compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
         domain: "{{ hostvars[odoo_host]['domain'] }}"
         odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+
+    - name: Copy generated dynamic configs to Traefik server
+      ansible.builtin.copy:
+        src: "{{ local_dynamic_dir }}/"
+        dest: /opt/traefik/config/dynamic/
+        mode: '0644'
+      delegate_to: "{{ traefik_host }}"
       become: true
