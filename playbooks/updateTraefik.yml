@@ -49,7 +49,8 @@
         dest: ../opt/traefik/config/dynamic/{{ inventory_hostname }}.yml.j2
 
     - name: Restart the traefik container
-      shell: docker compose down && docker compose up -d
-      chdir: /opt/traefik/
-      become: true
+      shell:
+        cmd: docker compose down && docker compose up -d
+        chdir: /opt/traefik/
+        become: true
       when: copy_repo.changed
