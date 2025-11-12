@@ -59,7 +59,7 @@
       when: copy_repo.changed
 
 
-# 🆕 NUEVO BLOQUE: generar y copiar los dynamic.yml
+# Generate and copy Traefik dynamic configs for Odoo hosts
 - name: Generate and copy Traefik dynamic configs for Odoo hosts
   hosts: localhost
   gather_facts: no
@@ -68,7 +68,6 @@
     traefik_host: "{{ groups['traefik'] | first }}"
 
   tasks:
-
     - name: Ensure local directory for dynamic configs exists
       file:
         path: "{{ local_dynamic_dir }}"

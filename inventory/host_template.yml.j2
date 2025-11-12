@@ -1,0 +1,17 @@
+all:
+  children:
+    odoo:
+      hosts:
+        dv-{{ client_name }}-{{ ip1 | default('24') }}.{{ ip2 }} (192.168.{{ ip1 | default('24') }}.{{ ip2 }}):
+          ansible_host: 192.168.{{ ip1 | default('24') }}.{{ ip2 }}
+          compose_project_name: {{ client_name }}
+          deployment_target: {{ deployment_target | default('prod') }}
+          odoo_version: {{ odoo_version | default('18') }}
+          odoo_exposed_port: {{ exposed_port | default('8069') }}
+          domain: {{ domain | default('eg.doovate.com') }}
+          deployment_path: /opt/docker
+          auto_install_modules: {{ auto_isntall_modules | default('true') }}
+          auto_update_modules: {{ auto_update_modules | default('true') }}
+          auto_create_database: {{ auto_create_databae | default('true') }}
+          force_rebuild: false
+          optional_whisper: {{ install_whisper | default('false') }}
