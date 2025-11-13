@@ -10,11 +10,6 @@
       loop:
         - pip
 
-    - name: Install required Python packages
-      pip:
-        name: docker
-        state: present
-
     - name: Ensure traefik external network exists
       community.docker.docker_network:
         name: traefik
