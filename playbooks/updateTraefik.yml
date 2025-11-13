@@ -84,6 +84,8 @@
         domain: "{{ hostvars[odoo_host]['domain'] }}"
         odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
       become: true
+      ignore_errors: yes
+      register: dynamic_configs_generated
 
     - name: Copy generated dynamic configs to Traefik server
       ansible.builtin.copy:
@@ -92,3 +94,4 @@
         mode: '0644'
       delegate_to: "{{ traefik_host }}"
       become: true
+      when: dynamic_configs_generated.changed
