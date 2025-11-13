@@ -74,7 +74,7 @@
       template:
         src: ../templates/dynamic.yml.j2
         dest: "{{ local_dynamic_dir }}/{{ odoo_host_clean }}.yml"
-      loop: "{{ groups['odoo'] }}"
+      loop: "{{ groups.get('odoo', []) }}"
       loop_control:
         loop_var: odoo_host
       vars:
@@ -94,4 +94,5 @@
         mode: '0644'
       delegate_to: "{{ traefik_host }}"
       become: true
-      when: dynamic_configs_generated.changed
+      when: dynamic_configs_generated is defined and dynamic_configs_generated.changed
+      ignore_errors: yes
