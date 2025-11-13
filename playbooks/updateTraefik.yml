@@ -68,6 +68,7 @@
         path: "{{ local_dynamic_dir }}"
         state: directory
         mode: '0755'
+      become: true
 
     - name: Generate dynamic.yml files locally for each Odoo host
       template:
@@ -82,6 +83,7 @@
         compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
         domain: "{{ hostvars[odoo_host]['domain'] }}"
         odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
+      become: true
 
     - name: Copy generated dynamic configs to Traefik server
       ansible.builtin.copy:
