@@ -83,6 +83,7 @@
         - addons
         - cache
         - log
+        - config
 
     - name: Configure containers to use available resources
       command:
