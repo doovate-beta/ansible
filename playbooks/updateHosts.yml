@@ -45,7 +45,7 @@
       file:
         path: /opt/docker/{{ item }}
         state: directory
-        mode: '0755'
+        mode: '0777'
       loop:
         - addons
         - log
@@ -71,6 +71,18 @@
         mode: '0644'
       become: true
       register: env_file
+
+    # Todo: figure out proper permissions for these directories
+    - name: Set 777 permissions recursively on Odoo writable directories
+      file:
+        path: /opt/docker/{{ item }}
+        mode: '0777'
+        recurse: yes
+      become: true
+      loop:
+        - addons
+        - cache
+        - log
 
     - name: Configure containers to use available resources
       command:
