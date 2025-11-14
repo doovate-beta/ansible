@@ -100,3 +100,16 @@
       when: git_output.changed or env_file.changed
       ignore_errors: yes
       become: true
+
+    - name: Deploy Portainer Agent
+      community.docker.docker_container:
+        name: portainer_agent
+        image: portainer/agent:2.33.3
+        state: started
+        restart_policy: always
+        ports:
+          - "9001:9001"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /var/lib/docker/volumes:/var/lib/docker/volumes
+          - /:/host
