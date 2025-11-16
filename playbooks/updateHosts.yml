@@ -32,10 +32,10 @@
       become: true
       register: git_updated
 
-    - name: Sync files to production directory
+    - name: Sync siles to production directory
       ansible.builtin.synchronize:
         src: /tmp/docker_repo_tmp/
-        dest: {{ odoo_path }}
+        dest: "{{ odoo_path }}"
         delete: no
         recursive: yes
       delegate_to: "{{ inventory_hostname }}"
@@ -43,9 +43,9 @@
       when: git_updated.changed
       register: git_output
 
-    - name: Create the necessary directories for the Odoo docker containers
+    - name: Create the necessary sirectories for the Odoo docker containers
       file:
-        path: {{ odoo_path }}/{{ item }}
+        path: "{{ odoo_path }}/{{ item }}"
         state: directory
         mode: '0777'
       loop:
@@ -57,7 +57,7 @@
     - name: Create the necessary files for the Odoo docker containers
       copy:
         content: ""
-        dest: {{ odoo_path }}/{{ item }}
+        dest: "{{ odoo_path }}/{{ item }}"
         force: no
         mode: '0755'
       become: true
@@ -69,7 +69,7 @@
     - name: Create .env file from template
       template:
         src: ../templates/odoo.env.j2
-        dest: {{ odoo_path }}/.env
+        dest: "{{ odoo_path }}/.env"
         mode: '0644'
       become: true
       register: env_file
@@ -77,7 +77,7 @@
     # Todo: figure out proper permissions for these directories
     - name: Set 777 permissions recursively on Odoo writable directories
       file:
-        path: {{ odoo_path }}/{{ item }}
+        path: "{{ odoo_path }}/{{ item }}"
         mode: '0777'
         recurse: yes
       become: true
@@ -89,7 +89,7 @@
 
     - name: Configure containers to use available resources
       command:
-        chdir: {{ odoo_path }}
+        chdir: "{{ odoo_path }}"
         cmd: pymtech-docker-launcher config auto-config
       when: git_output.changed or env_file.changed
       ignore_errors: yes
@@ -97,7 +97,7 @@
 
     - name: Relaunch containers
       command:
-        chdir: {{ odoo_path }}
+        chdir: "{{ odoo_path }}"
         cmd: pymtech-docker-launcher
       when: git_output.changed or env_file.changed
       ignore_errors: yes
