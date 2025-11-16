@@ -9,7 +9,6 @@ all:
           odoo_version: {{ odoo_version | default('18') }}
           odoo_exposed_port: {{ exposed_port | default('8069') }}
           domain: {{ domain | default('eg.doovate.com') }}
-          deployment_path: /opt/docker
           auto_install_modules: {{ auto_isntall_modules | default('true') }}
           auto_update_modules: {{ auto_update_modules | default('true') }}
           auto_create_database: {{ auto_create_databae | default('true') }}
