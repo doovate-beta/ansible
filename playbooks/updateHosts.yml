@@ -1,6 +1,7 @@
 - hosts: odoo
   vars:
     odoo_path: /opt/odoo
+    docker_launcher: dv-launcher
 
   tasks:
     - name: Make sure necessary packages are installed
@@ -18,7 +19,7 @@
     - name: Install the docker launcher from pip
       pip:
         name:
-          - pymtech_docker_launcher
+          - "{{ docker_launcher }}"
         state: latest
         break_system_packages: true
       become: true
