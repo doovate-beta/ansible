@@ -51,7 +51,6 @@
         mode: '0777'
       loop:
         - addons
-        - log
         - cache
       become: true
 
@@ -64,7 +63,6 @@
       become: true
       loop:
         - cache/addons_cache.json
-        - log/odoo-server.log
         - addons/requirements.txt
 
     - name: Create .env file from template
@@ -85,7 +83,6 @@
       loop:
         - addons
         - cache
-        - log
         - config
 
     - name: Configure containers to use available resources
