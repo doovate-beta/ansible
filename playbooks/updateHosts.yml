@@ -88,7 +88,7 @@
     - name: Configure containers to use available resources
       command:
         chdir: "{{ odoo_path }}"
-        cmd: pymtech-docker-launcher config auto-config
+        cmd: {{ docker_launcher }} config auto-config
       when: git_output.changed or env_file.changed
       ignore_errors: yes
       become: true
@@ -96,7 +96,7 @@
     - name: Relaunch containers
       command:
         chdir: "{{ odoo_path }}"
-        cmd: pymtech-docker-launcher
+        cmd: "{{ docker_launcher }}"
       when: git_output.changed or env_file.changed
       ignore_errors: yes
       become: true
