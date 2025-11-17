@@ -4,3 +4,7 @@ all:
       hosts:
         dv-reverse-24.40 (192.168.24.40):
           ansible_host: 192.168.24.40
+
+    docker:
+      hosts:
+        dv-reverse-24.40 (192.168.24.40):
