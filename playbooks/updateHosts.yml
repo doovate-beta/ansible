@@ -33,7 +33,7 @@
       become: true
       register: git_updated
 
-    - name: Sync siles to production directory
+    - name: Sync files to production directory
       ansible.builtin.synchronize:
         src: /tmp/docker_repo_tmp/
         dest: "{{ odoo_path }}"
@@ -44,7 +44,7 @@
       when: git_updated.changed
       register: git_output
 
-    - name: Create the necessary sirectories for the Odoo docker containers
+    - name: Create the necessary directories for the Odoo docker containers
       file:
         path: "{{ odoo_path }}/{{ item }}"
         state: directory
@@ -100,17 +100,3 @@
       when: git_output.changed or env_file.changed
       ignore_errors: yes
       become: true
-
-    # Todo: Move to separate playbook
-    - name: Deploy Portainer Agent
-      community.docker.docker_container:
-        name: portainer_agent
-        image: portainer/agent:2.33.3
-        state: started
-        restart_policy: always
-        ports:
-          - "9001:9001"
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
-          - /var/lib/docker/volumes:/var/lib/docker/volumes
-          - /:/host

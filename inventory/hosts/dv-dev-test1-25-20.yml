@@ -1,0 +1,16 @@
+all:
+  children:
+    odoo:
+      hosts:
+        dv-dev-test1-25-20:
+          ansible_host: 192.168.25.20
+          compose_project_name: dev-test1
+          deployment_target: prod
+          odoo_version: 19
+          odoo_exposed_port: 8069
+          domain: test1.doovate.com
+          auto_install_modules: true
+          auto_update_modules: true
+          auto_create_database: false
+          force_rebuild: false
+          optional_whisper: false

@@ -1,0 +1,9 @@
+- name: Deploy and configure Traefik
+  hosts: traefik
+  become: true
+
+  roles:
+   - docker
+   - traefik
+   - portainer_agent
+   - loki_client
