@@ -7,3 +7,10 @@
     - portainer_agent
     - odoo_docker
     - loki_client
+
+- name: Generate and copy Traefik dynamic config
+  hosts: localhost
+  become: true
+
+  roles:
+    - odoo_traefik_dynamic
