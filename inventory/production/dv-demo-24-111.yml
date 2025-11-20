@@ -1,0 +1,17 @@
+all:
+  children:
+    odoo:
+      hosts:
+        dv-demo-24.111 (192.168.24.111):
+          ansible_host: 192.168.24.111
+          compose_project_name: demo
+          deployment_target: prod
+          odoo_version: 18
+          odoo_exposed_port: 8069
+          domain: demo.doovate.com
+          deployment_path: /opt/docker
+          auto_install_modules: true
+          auto_update_modules: true
+          auto_create_database: true
+          force_rebuild: false
+          optional_whisper: false
