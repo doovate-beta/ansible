@@ -2,7 +2,7 @@ all:
   children:
     odoo:
       hosts:
-        dv-lamanolita-24.195 (192.168.24.195):
+        dv-lamanolita-24-195 (192.168.24.195):
           ansible_host: 192.168.24.195
           compose_project_name: lamanolita
           deployment_target: prod

@@ -2,7 +2,7 @@ all:
   children:
     odoo:
       hosts:
-        dv-erp-24.9 (192.168.24.9):
+        dv-erp-24-9 (192.168.24.9):
           ansible_host: 192.168.24.9
           compose_project_name: erp
           deployment_target: prod

@@ -2,7 +2,7 @@ all:
   children:
     odoo:
       hosts:
-        dv-{{ client_name }}-{{ _192_168_xx_ip4 | default('24') }}.{{ _192_168_ip3_xx }}:
+        dv-{{ client_name }}-{{ _192_168_xx_ip4 | default('24') }}-{{ _192_168_ip3_xx }}:
           ansible_host: 192.168.{{ _192_168_xx_ip4 | default('24') }}.{{ _192_168_ip3_xx }}
           compose_project_name: {{ client_name }}
           deployment_target: {{ deployment_target | default('prod') }}
