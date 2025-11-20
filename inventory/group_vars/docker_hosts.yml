@@ -1,5 +1,0 @@
-all:
-  children:
-    docker:
-      vars:
-        loki_url: "{{ vault_loki_url }}"

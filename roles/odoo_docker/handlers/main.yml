@@ -1,6 +1,0 @@
-- name: relaunch containers
-  command:
-    chdir: "{{ odoo_path }}"
-    cmd: "{{ docker_launcher }}"
-  ignore_errors: yes
-  listen: restart docker service

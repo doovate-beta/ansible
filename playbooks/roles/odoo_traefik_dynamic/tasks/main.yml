@@ -1,32 +1,6 @@
-- name: Ensure local directory for dynamic configs exists
-  file:
-    path: "{{ local_dynamic_dir }}"
-    state: directory
-    mode: '0755'
-
-- name: Generate dynamic.yml files locally for each Odoo host
+- name: Generate dynamic.yml for each Odoo instance
   template:
     src: dynamic.yml.j2
-    dest: "{{ local_dynamic_dir }}/{{ odoo_host_clean }}.yml"
-  loop: "{{ groups.get('odoo', []) }}"
-  loop_control:
-    loop_var: odoo_host
-  vars:
-    odoo_host_clean: "{{ odoo_host | regex_replace('[^a-zA-Z0-9._-]', '_') }}"
-    ansible_host: "{{ hostvars[odoo_host]['ansible_host'] }}"
-    compose_project_name: "{{ hostvars[odoo_host]['compose_project_name'] }}"
-    domain: "{{ hostvars[odoo_host]['domain'] }}"
-    odoo_exposed_port: "{{ hostvars[odoo_host]['odoo_exposed_port'] }}"
-  register: dynamic_configs_generated
-  ignore_errors: yes
-
-- name: Copy each dynamic config individually
-  copy:
-    src: "{{ item }}"
-    dest: "/opt/traefik/config/dynamic/{{ item | basename }}"
+    dest: "/opt/traefik/config/dynamic/{{ inventory_hostname_short }}.yml"
     mode: '0644'
-    force: yes
-  loop: "{{ lookup('fileglob', local_dynamic_dir ~ '/*.yml', wantlist=True) }}"
   delegate_to: "{{ traefik_host }}"
-
-#  when: dynamic_configs_generated is defined and dynamic_configs_generated.changed
