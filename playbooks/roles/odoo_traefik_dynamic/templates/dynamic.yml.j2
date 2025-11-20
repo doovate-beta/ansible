@@ -1,0 +1,34 @@
+http:
+  routers:
+    odoo-{{ compose_project_name }}-http-router:
+      rule: "Host(`{{ domain }}`)"
+      entryPoints:
+        - websecure
+      service: odoo-{{ compose_project_name }}-http-service
+      tls:
+        certResolver: letsencrypt
+
+    odoo-{{ compose_project_name }}-websocket-router:
+      rule: "Host(`{{ domain }}`) && PathPrefix(`/websocket`)"
+      entryPoints:
+        - websecure
+      service: odoo-{{ compose_project_name }}-websocket-service
+      tls:
+        certResolver: letsencrypt
+      priority: 100
+
+  services:
+    odoo-{{ compose_project_name }}-http-service:
+      loadBalancer:
+        servers:
+          - url: "http://{{ ansible_host }}:{{ odoo_exposed_port }}"
+        healthCheck:
+          path: /web/database/selector
+          interval: 30s
+          timeout: 5s
+      services:
+
+    odoo-{{ compose_project_name }}-websocket-service:
+      loadBalancer:
+        servers:
+          - url: "http://{{ ansible_host }}:8072"
