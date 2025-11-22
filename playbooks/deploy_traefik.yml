@@ -1,5 +1,5 @@
 - name: Deploy and configure Traefik
-  hosts: traefik
+  hosts: device_roles_traefik
   become: true
 
   roles:
