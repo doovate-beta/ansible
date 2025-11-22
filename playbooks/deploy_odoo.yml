@@ -1,5 +1,5 @@
 - name: Deploy and configure Odoo containers
-  hosts: odoo
+  hosts: device_roles_odoo
   become: true
 
   roles:
