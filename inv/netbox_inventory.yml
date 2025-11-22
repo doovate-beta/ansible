@@ -1,8 +1,9 @@
 plugin: netbox.netbox.nb_inventory
-api_endpoint: http://your_netbox_url_here
-token: YOUR_NETBOX_API_TOKEN
+api_endpoint: http://http://192.168.24.50:9100
+token: fab9e4f2f793e5e0f761dd37f0250bbd6716cafb
 validate_certs: False
 config_context: False
+
 
 # Agrupar por rol de dispositivo
 group_by:
