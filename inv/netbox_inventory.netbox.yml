@@ -11,3 +11,16 @@ group_by:
   - tags
   - platforms
   - sites
+
+compose:
+  ansible_host: primary_ip4.address.split('/')[0]
+  compose_project_name: custom_fields.compose_project_name
+  deployment_target: custom_fields.deployment_target
+  odoo_version: custom_fields.odoo_version
+  odoo_exposed_port: custom_fields.odoo_exposed_port
+  domain: custom_fields.domain
+  auto_install_modules: custom_fields.auto_install_modules
+  auto_update_modules: custom_fields.auto_update_modules
+  auto_create_database: custom_fields.auto_create_database
+  force_rebuild: custom_fields.force_rebuild
+  optional_whisper: custom_fields.optional_whisper
