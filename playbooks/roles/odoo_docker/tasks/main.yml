@@ -84,21 +84,22 @@
 - name: Get selected addons from NetBox (repo_list)
   set_fact:
     selected_addon_names: "{{ custom_fields.repo_list | default([]) }}"
+    temp_addons_dir: "/tmp/odoo_addons_{{ inventory_hostname }}"
 
 - name: Show selected addons
   debug:
     msg: "Selected addons from repo_list: {{ selected_addon_names }}"
 
 - name: Create temporary directory for addon cloning
-  ansible.builtin.tempfile:
+  ansible.builtin.file:
+    path: "{{ temp_addons_dir }}"
     state: directory
-    suffix: _odoo_addons
-  register: temp_addons_dir
+    mode: '0755'
 
 - name: Clone addon repositories to temp
   ansible.builtin.git:
     repo: "{{ odoo_addon_repository_map[item].url }}"
-    dest: "{{ temp_addons_dir.path }}/{{ item }}"
+    dest: "{{ temp_addons_dir }}/{{ item }}"
     version: "{{ odoo_addon_repository_map[item].branch }}"
     depth: 1
     force: yes
