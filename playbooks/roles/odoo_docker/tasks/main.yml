@@ -107,25 +107,27 @@
   when:
     - selected_addon_names | length > 0
     - item in odoo_addon_repository_map
+  register: git_clone_results
 
 - name: Create extra addons directory
   file:
-    path: "{{ odoo_path }}/extra-addons"
+    path: "{{ odoo_path }}/addons"
     state: directory
     mode: '0755'
 
-- name: Copy addons content from temp to final location
+- name: Copy addons content from temp to final location (only if updated)
   ansible.posix.synchronize:
-    src: "{{ temp_addons_dir }}/{{ item }}/"
+    src: "{{ temp_addons_dir }}/{{ item.item }}/"
     dest: "{{ odoo_path }}/addons/"
     delete: no
     recursive: yes
-  loop: "{{ selected_addon_names }}"
+  loop: "{{ git_clone_results.results }}"
   delegate_to: "{{ inventory_hostname }}"
   when:
-    - selected_addon_names | length > 0
-    - item in odoo_addon_repository_map
+    - item.changed | default(false)
+    - not item.skipped | default(false)
   notify: relaunch containers
+
 
 - name: Obtain container info
   community.docker.docker_container_info:
