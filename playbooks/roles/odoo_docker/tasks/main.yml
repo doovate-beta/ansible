@@ -131,6 +131,49 @@
   notify: relaunch containers
   no_log: "{{ not (item.changed | default(false)) }}"
 
+- name: Find all requirements.txt files in cloned addons
+  ansible.builtin.find:
+    paths: "{{ temp_addons_dir }}"
+    patterns: "requirements.txt"
+    recurse: yes
+  register: requirements_files
+  when: selected_addon_names | length > 0
+
+- name: Read all requirements.txt files
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop: "{{ requirements_files.files }}"
+  register: requirements_contents
+  when: requirements_files.matched > 0
+
+- name: Combine all requirements into a single list
+  set_fact:
+    combined_requirements: >-
+      {{
+        requirements_contents.results |
+        map(attribute='content') |
+        map('b64decode') |
+        map('split', '\n') |
+        flatten |
+        map('trim') |
+        select('match', '^[^#].*') |
+        select('length') |
+        unique |
+        sort |
+        list
+      }}
+  when: requirements_contents.results is defined
+
+- name: Create combined requirements.txt
+  ansible.builtin.copy:
+    content: "{{ combined_requirements | join('\n') }}\n"
+    dest: "{{ odoo_path }}/addons/requirements.txt"
+    mode: '0644'
+  when:
+    - combined_requirements is defined
+    - combined_requirements | length > 0
+  notify: relaunch containers
+
 - name: Obtain container info
   community.docker.docker_container_info:
     name: "{{ compose_project_name }}_{{ item }}"
