@@ -113,7 +113,7 @@
   file:
     path: "{{ odoo_path }}/addons"
     state: directory
-    mode: '0755'
+    mode: '0777'
 
 - name: Copy addons content from temp to final location (only if updated)
   ansible.posix.synchronize:
@@ -122,12 +122,14 @@
     delete: no
     recursive: yes
   loop: "{{ git_clone_results.results }}"
+  loop_control:
+    label: "{{ item.item }}"
   delegate_to: "{{ inventory_hostname }}"
   when:
     - item.changed | default(false)
     - not item.skipped | default(false)
   notify: relaunch containers
-
+  no_log: "{{ not (item.changed | default(false)) }}"
 
 - name: Obtain container info
   community.docker.docker_container_info:
