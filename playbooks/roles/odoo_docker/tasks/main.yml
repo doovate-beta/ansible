@@ -133,18 +133,33 @@
 
 - name: Find all requirements.txt files in cloned addons
   ansible.builtin.find:
-    paths: "{{ temp_addons_dir }}"
+    paths: "{{ temp_addons_dir }}/{{ item }}"
     patterns: "requirements.txt"
     recurse: yes
+  loop: "{{ selected_addon_names }}"
   register: requirements_files
-  when: selected_addon_names | length > 0
+  when:
+    - selected_addon_names | length > 0
+    - item in odoo_addon_repository_map
+
+- name: Flatten requirements files list
+  set_fact:
+    all_requirements_files: >-
+      {{
+        requirements_files.results |
+        selectattr('files', 'defined') |
+        map(attribute='files') |
+        flatten |
+        list
+      }}
+  when: requirements_files.results is defined
 
 - name: Read all requirements.txt files
   ansible.builtin.slurp:
     src: "{{ item.path }}"
-  loop: "{{ requirements_files.files }}"
+  loop: "{{ all_requirements_files }}"
   register: requirements_contents
-  when: requirements_files.matched > 0
+  when: all_requirements_files | length > 0
 
 - name: Combine all requirements into a single list
   set_fact:
@@ -162,7 +177,9 @@
         sort |
         list
       }}
-  when: requirements_contents.results is defined
+  when:
+    - requirements_contents is defined
+    - requirements_contents.results is defined
 
 - name: Create combined requirements.txt
   ansible.builtin.copy:
