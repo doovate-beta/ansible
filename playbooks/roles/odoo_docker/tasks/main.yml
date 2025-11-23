@@ -113,12 +113,9 @@
     state: directory
     mode: '0755'
 
-- name: Copy addons from temp to final location
-  ansible.builtin.copy:
-    src: "{{ temp_addons_dir.path }}/{{ item }}/"
-    dest: "{{ odoo_path }}/addons/{{ item }}/"
-    remote_src: yes
-    mode: preserve
+- name: Copy addons content from temp to final location
+  ansible.builtin.shell: |
+    cp -r {{ temp_addons_dir.path }}/{{ item }}/* {{ odoo_path }}/addons/
   loop: "{{ selected_addon_names }}"
   when:
     - selected_addon_names | length > 0
