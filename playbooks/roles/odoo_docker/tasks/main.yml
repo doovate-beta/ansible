@@ -154,32 +154,44 @@
       }}
   when: requirements_files.results is defined
 
+- name: Debug found requirements files
+  debug:
+    msg: "Found {{ all_requirements_files | length }} requirements.txt files"
+  when: all_requirements_files is defined
+
 - name: Read all requirements.txt files
   ansible.builtin.slurp:
     src: "{{ item.path }}"
   loop: "{{ all_requirements_files }}"
   register: requirements_contents
-  when: all_requirements_files | length > 0
+  when: all_requirements_files | default([]) | length > 0
+  ignore_errors: yes
 
 - name: Combine all requirements into a single list
   set_fact:
+    combined_requirements: []
+  when: requirements_contents is defined
+
+- name: Process each requirements file
+  set_fact:
     combined_requirements: >-
       {{
-        requirements_contents.results |
-        map(attribute='content') |
-        map('b64decode') |
-        map('split', '\n') |
-        flatten |
+        combined_requirements +
+        (item.content | b64decode | split('\n') |
         map('trim') |
-        select('match', '^[^#].*') |
-        select('length') |
-        unique |
-        sort |
-        list
+        select('match', '^[^#\s].*') |
+        list)
       }}
+  loop: "{{ requirements_contents.results | default([]) }}"
   when:
-    - requirements_contents is defined
-    - requirements_contents.results is defined
+    - item.content is defined
+    - not item.failed | default(false)
+  ignore_errors: yes
+
+- name: Remove duplicates and sort
+  set_fact:
+    combined_requirements: "{{ combined_requirements | unique | sort }}"
+  when: combined_requirements is defined
 
 - name: Create combined requirements.txt
   ansible.builtin.copy:
@@ -190,6 +202,7 @@
     - combined_requirements is defined
     - combined_requirements | length > 0
   notify: relaunch containers
+
 
 - name: Obtain container info
   community.docker.docker_container_info:
