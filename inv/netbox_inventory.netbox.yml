@@ -1,17 +1,17 @@
 plugin: netbox.netbox.nb_inventory
-api_endpoint: http://192.168.24.50:9100
-token: fab9e4f2f793e5e0f761dd37f0250bbd6716cafb
+api_endpoint: http://192.168.24.55:9100
+token: afce2096a1a4ba342c98d579fac45f9befe83461
 validate_certs: False
 config_context: False
 
 
-# Agrupar por rol de dispositivo
 group_by:
   - device_roles
   - tags
   - platforms
   - sites
 
+# Custom fields
 compose:
   ansible_host: primary_ip4.address.split('/')[0]
   compose_project_name: custom_fields.compose_project_name
