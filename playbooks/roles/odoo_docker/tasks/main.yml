@@ -154,11 +154,6 @@
       }}
   when: requirements_files.results is defined
 
-- name: Debug found requirements files
-  debug:
-    msg: "Found {{ all_requirements_files | length }} requirements.txt files"
-  when: all_requirements_files is defined
-
 - name: Read all requirements.txt files
   ansible.builtin.slurp:
     src: "{{ item.path }}"
@@ -193,16 +188,42 @@
     combined_requirements: "{{ combined_requirements | unique | sort }}"
   when: combined_requirements is defined
 
-- name: Create combined requirements.txt
-  ansible.builtin.copy:
-    content: "{{ combined_requirements | join('\n') }}\n"
-    dest: "{{ odoo_path }}/addons/requirements.txt"
-    mode: '0644'
+- name: Check if requirements.txt exists
+  ansible.builtin.stat:
+    path: "{{ odoo_path }}/addons/requirements.txt"
+  register: existing_requirements
+
+- name: Read existing requirements.txt if exists
+  ansible.builtin.slurp:
+    src: "{{ odoo_path }}/addons/requirements.txt"
+  register: existing_requirements_content
+  when: existing_requirements.stat.exists
+
+- name: Calculate new requirements content
+  set_fact:
+    new_requirements_content: "{{ combined_requirements | join('\n') }}\n"
   when:
     - combined_requirements is defined
     - combined_requirements | length > 0
-  notify: relaunch containers
 
+- name: Check if requirements have changed
+  set_fact:
+    requirements_changed: >-
+      {{
+        not existing_requirements.stat.exists or
+        (existing_requirements_content.content | default('') | b64decode) != new_requirements_content
+      }}
+  when: new_requirements_content is defined
+
+- name: Create/Update combined requirements.txt
+  ansible.builtin.copy:
+    content: "{{ new_requirements_content }}"
+    dest: "{{ odoo_path }}/addons/requirements.txt"
+    mode: '0644'
+  when:
+    - new_requirements_content is defined
+    - requirements_changed | default(false)
+  notify: relaunch containers
 
 - name: Obtain container info
   community.docker.docker_container_info:
