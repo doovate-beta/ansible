@@ -7,10 +7,14 @@ config_context: False
 
 group_by:
   - device_roles
-  - custom_fields.deployment_target
   - tags
   - platforms
   - sites
+
+keyed_groups:
+  - key: custom_fields.deployment_target
+    prefix: ""
+    separator: ""
 
 # Custom fields
 compose:
