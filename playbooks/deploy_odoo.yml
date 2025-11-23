@@ -1,5 +1,6 @@
 - name: Deploy and configure Odoo containers
-  hosts: "device_roles_odoo:&{{ target_env | default('prod') }}"
+#  hosts: "device_roles_odoo:&{{ target_env | default('prod') }}"
+  hosts: "device_roles_odoo:&prod"
   become: true
 
   roles:
