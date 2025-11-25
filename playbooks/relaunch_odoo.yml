@@ -1,0 +1,6 @@
+- name: Relaunch Odoo containers
+  hosts: "device_roles_odoo:&prod"
+  become: true
+
+  roles:
+    - odoo_docker_restart

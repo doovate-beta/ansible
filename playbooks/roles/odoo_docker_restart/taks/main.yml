@@ -1,0 +1,4 @@
+- name: relaunch containers
+  command:
+    chdir: /opt/odoo
+    cmd: dv-launcher
