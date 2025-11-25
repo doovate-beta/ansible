@@ -1,6 +1,0 @@
-all:
-  children:
-    traefik:
-      hosts:
-        dv-reverse-24.40:
-          ansible_host: 192.168.24.40

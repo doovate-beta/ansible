@@ -30,3 +30,7 @@ compose:
   force_rebuild: custom_fields.force_rebuild
   optional_whisper: custom_fields.optional_whisper
   repo_list: custom_fields.repo_list
+  initial_db_master_pass: custom_fields.initial_db_master_pass
+  initial_db_name: custom_fields.initial_db_name
+  initial_db_user: custom_fields.initial_db_user
+  initial_db_user_pass: custom_fields.initial_db_user_pass
