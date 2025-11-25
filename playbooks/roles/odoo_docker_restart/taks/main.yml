@@ -2,3 +2,13 @@
   command: dv-launcher
   args:
     chdir: /opt/odoo
+  register: dv_output
+
+- name: Show dv-launcher output
+  debug:
+    msg: |
+      STDOUT:
+      {{ dv_output.stdout }}
+
+      STDERR:
+      {{ dv_output.stderr }}
