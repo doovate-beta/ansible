@@ -19,13 +19,6 @@
 - name: Install Playwright
   pip:
     name:
-      -
-    state: latest
-    break_system_packages: true
-
-- name: Install Playwright
-  pip:
-    name:
       - playwright
     state: latest
     break_system_packages: true
