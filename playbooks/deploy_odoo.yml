@@ -5,6 +5,7 @@
 
   roles:
     - docker
+    - install_pip
     - playwright
     - portainer_agent
     - odoo_docker
