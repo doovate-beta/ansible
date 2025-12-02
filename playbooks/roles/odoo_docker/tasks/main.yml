@@ -124,7 +124,7 @@
 
 - name: Copy addons content from temp to final location (only if updated)
   ansible.posix.synchronize:
-    src: "{{ temp_addons_dir }}/{{ item.item }}/"
+    src: "{{ temp_addons_dir }}/{{ item.item.key }}/"
     dest: "{{ odoo_path }}/addons/"
     delete: no
     recursive: yes
