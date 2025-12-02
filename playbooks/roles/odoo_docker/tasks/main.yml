@@ -147,7 +147,7 @@
   register: requirements_files
   when:
     - selected_addon_map | length > 0
-    - item in odoo_addon_repository_map
+    - item.key in odoo_addon_repository_map
 
 - name: Flatten requirements files list
   set_fact:
