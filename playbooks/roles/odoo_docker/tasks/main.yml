@@ -81,10 +81,25 @@
   when: git_output.changed or env_file.changed
   ignore_errors: yes
 
-- name: Get selected addons from NetBox (repo_list)
+- name: Generate a list with the names of the addon packages that will be installed
   set_fact:
-    selected_addon_names: "{{ custom_fields.repo_list | default([]) }}"
+    selected_addon_names: "{{ repo_list | default([]) }}"
     temp_addons_dir: "/tmp/odoo_addons_{{ inventory_hostname }}"
+
+- name: Build base addon map from core repositories
+  set_fact:
+    selected_addon_map: >-
+      {{
+        odoo_addon_repository_map
+        | dict2items
+        | selectattr('key', 'in', selected_addon_names)
+        | items2dict
+      }}
+
+- name: Merge company addon map
+  set_fact:
+    selected_addon_map: "{{ selected_addon_map | combine(company_addon_map) }}"
+  when: company_addon_map is defined and company_addon_map
 
 - name: Show selected addons
   debug:
@@ -107,6 +122,17 @@
   when:
     - selected_addon_names | length > 0
     - item in odoo_addon_repository_map
+  register: git_clone_results
+
+- name: Clone addon repositories
+  ansible.builtin.git:
+    repo: "{{ item.value.url }}"
+    dest: "{{ temp_addons_dir }}/{{ item.key }}"
+    version: "{{ item.value.branch }}"
+    depth: 1
+    force: yes
+  loop: "{{ selected_addon_map | dict2items }}"
+  when: selected_addon_map | length > 0
   register: git_clone_results
 
 - name: Create extra addons directory
@@ -164,7 +190,7 @@
 
 - name: Combine all requirements into a single list
   set_fact:
-    combined_requirements: []
+    combined_requirements: [ ]
   when: requirements_contents is defined
 
 - name: Process each requirements file
