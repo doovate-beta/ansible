@@ -103,7 +103,7 @@
 
 - name: Show selected addons
   debug:
-    msg: "Selected addons from repo_list: {{ selected_addon_names }}"
+    msg: "Selected addons from repo_list: {{ selected_addon_map | dict2items | map(attribute='key') | list }}"
 
 - name: Create temporary directory for addon cloning
   ansible.builtin.file:
@@ -130,7 +130,7 @@
     recursive: yes
   loop: "{{ git_clone_results.results }}"
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item.item.key }}"
   delegate_to: "{{ inventory_hostname }}"
   when:
     - item.changed | default(false)
