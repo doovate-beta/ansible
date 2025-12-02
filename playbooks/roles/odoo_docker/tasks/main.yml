@@ -111,20 +111,7 @@
     state: directory
     mode: '0755'
 
-- name: Clone addon repositories to temp
-  ansible.builtin.git:
-    repo: "{{ odoo_addon_repository_map[item].url }}"
-    dest: "{{ temp_addons_dir }}/{{ item }}"
-    version: "{{ odoo_addon_repository_map[item].branch }}"
-    depth: 1
-    force: yes
-  loop: "{{ selected_addon_names }}"
-  when:
-    - selected_addon_names | length > 0
-    - item in odoo_addon_repository_map
-  register: git_clone_results
-
-- name: Clone addon repositories
+- name: Clone addon repositories to temp from custom map
   ansible.builtin.git:
     repo: "{{ item.value.url }}"
     dest: "{{ temp_addons_dir }}/{{ item.key }}"
@@ -134,12 +121,6 @@
   loop: "{{ selected_addon_map | dict2items }}"
   when: selected_addon_map | length > 0
   register: git_clone_results
-
-- name: Create extra addons directory
-  file:
-    path: "{{ odoo_path }}/addons"
-    state: directory
-    mode: '0777'
 
 - name: Copy addons content from temp to final location (only if updated)
   ansible.posix.synchronize:
