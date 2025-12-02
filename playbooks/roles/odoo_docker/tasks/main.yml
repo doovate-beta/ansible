@@ -140,13 +140,13 @@
 
 - name: Find all requirements.txt files in cloned addons
   ansible.builtin.find:
-    paths: "{{ temp_addons_dir }}/{{ item }}"
+    paths: "{{ temp_addons_dir }}/{{ item.key }}"
     patterns: "requirements.txt"
     recurse: yes
   loop: "{{ selected_addon_map | dict2items }}"
   register: requirements_files
   when:
-    - selected_addon_names | length > 0
+    - selected_addon_map | length > 0
     - item in odoo_addon_repository_map
 
 - name: Flatten requirements files list
