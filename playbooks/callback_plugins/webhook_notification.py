@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -135,19 +134,70 @@ class CallbackModule(CallbackBase):
         has_failures = summary['failed'] > 0 or summary['unreachable'] > 0
         status = 'failed' if has_failures else 'success'
 
+        # Format duration
+        duration_str = f"{int(duration // 60)}m {int(duration % 60)}s" if duration >= 60 else f"{int(duration)}s"
+
+        # Build title
+        if has_failures:
+            title = f"❌ Playbook {self.playbook_name} FAILED"
+        else:
+            title = f"✅ Playbook {self.playbook_name} SUCCESS"
+
+        # Build formatted message
+        if has_failures:
+            # Detailed message for failures
+            message_lines = [
+                f"Playbook: {self.playbook_name}",
+                f"Status: FAILED",
+                f"Duration: {duration_str}",
+                f"",
+                "📊 Summary:",
+                f"  • OK: {summary['ok']}",
+                f"  • Changed: {summary['changed']}",
+                f"  • Failed: {summary['failed']}",
+                f"  • Unreachable: {summary['unreachable']}",
+                f"  • Skipped: {summary['skipped']}",
+                f"",
+                "🔥 Errors:"
+            ]
+
+            for idx, error in enumerate(self.failed_tasks, 1):
+                message_lines.append(f"\n[Error {idx}]")
+                message_lines.append(f"Host: {error['host']}")
+                message_lines.append(f"Task: {error['task']}")
+                message_lines.append(f"Message: {error['message']}")
+
+                # Add detailed error information
+                result = error['result']
+                if 'stderr' in result and result['stderr']:
+                    message_lines.append(f"STDERR:\n{result['stderr']}")
+                if 'stdout' in result and result['stdout']:
+                    message_lines.append(f"STDOUT:\n{result['stdout']}")
+                if 'exception' in result:
+                    message_lines.append(f"Exception:\n{result['exception']}")
+
+            message = "\n".join(message_lines)
+        else:
+            # Concise message for success
+            message_lines = [
+                f"Playbook: {self.playbook_name}",
+                f"Status: SUCCESS",
+                f"Duration: {duration_str}",
+                f"",
+                "📊 Summary:",
+                f"  • OK: {summary['ok']}",
+                f"  • Changed: {summary['changed']}",
+                f"  • Skipped: {summary['skipped']}",
+                f"",
+                f"Hosts: {', '.join(hosts)}"
+            ]
+            message = "\n".join(message_lines)
+
         # Build notification payload
         payload = {
-            'playbook': self.playbook_name,
-            'status': status,
-            'duration': duration,
-            'timestamp': datetime.now().isoformat(),
-            'message': summary,
-            'hosts': hosts
+            'title': title,
+            'message': message
         }
-
-        # Add detailed error information if failed
-        if has_failures:
-            payload['errors'] = self.failed_tasks
 
         # Send webhook
         try:
