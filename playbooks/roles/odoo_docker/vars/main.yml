@@ -10,3 +10,6 @@ odoo_addon_repository_map:
   "docker":
     url: "https://github.com/doovate/modulepack-docker.git"
     branch: "main"
+  "accounting":
+    url: "https://github.com/doovate/modulepack-accounting.git"
+    branch: "main"
