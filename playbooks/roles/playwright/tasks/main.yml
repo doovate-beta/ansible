@@ -29,5 +29,5 @@
   register: playwright_cache
 
 - name: Install chromium dependencies
-  command: python3 -m playwright install chromium
+  command: playwright install chromium
   when: not playwright_cache.stat.exists
