@@ -24,5 +24,4 @@
     break_system_packages: true
 
 - name: Install chromium dependencies
-  command: >
-    playwright install chromium
+  command: python3 -m playwright install chromium
