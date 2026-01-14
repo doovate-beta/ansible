@@ -23,5 +23,11 @@
     state: latest
     break_system_packages: true
 
+- name: Check if Playwright Chromium is installed
+  stat:
+    path: /root/.cache/ms-playwright
+  register: playwright_cache
+
 - name: Install chromium dependencies
   command: python3 -m playwright install chromium
+  when: not playwright_cache.stat.exists
