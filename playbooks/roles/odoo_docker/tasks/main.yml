@@ -231,6 +231,24 @@
     - requirements_changed | default(false)
   notify: relaunch containers
 
+- name: Create the folder for the list of base addons to be installed
+  ansible.builtin.file:
+    path: "{{ odoo_path }}/addons/base_addons_list/"
+    state: directory
+    mode: '0755'
+
+- name: Create the __init__.py file for the list of base addons to be installed
+  ansible.builtin.file:
+    path: "{{ odoo_path }}/addons/base_addons_list/__init__.py"
+    state: touch
+    mode: '0644'
+
+- name: Create the manifest file for the list of base addons to be installed
+  ansible.builtin.template:
+    src: __manifest__.py.j2
+    dest: "{{ odoo_path }}/addons/base_addons_list/__manifest__.py"
+    mode: '0644'
+
 - name: Obtain container info
   community.docker.docker_container_info:
     name: "{{ compose_project_name }}_{{ item }}"

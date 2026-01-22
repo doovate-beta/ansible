@@ -32,6 +32,7 @@ compose:
   # Addons to install
   company_addon_map: custom_fields.company_addon_map
   repo_list: custom_fields.repo_list
+  base_addons: custom_fields.base_addons
   # Initial database
   initial_db_master_pass: custom_fields.initial_db_master_pass
   initial_db_name: custom_fields.initial_db_name
