@@ -1,7 +1,8 @@
 http:
   routers:
     odoo-{{ compose_project_name }}-http-router:
-      rule: "Host(`{{ domain }}`)"
+{#      rule: "Host(`{{ domain }}`)"#}
+      rule: "{{ domain.split(',') | map('trim') | map('regex_replace', '^(.*)$', 'Host(`\\1`)') | join(' || ') }}"
       entryPoints:
         - websecure
       service: odoo-{{ compose_project_name }}-http-service
@@ -9,7 +10,8 @@ http:
         certResolver: letsencrypt
 
     odoo-{{ compose_project_name }}-websocket-router:
-      rule: "Host(`{{ domain }}`) && PathPrefix(`/websocket`)"
+{#      rule: "Host(`{{ domain }}`) && PathPrefix(`/websocket`)"#}
+      rule: "({{ domain.split(',') | map('trim') | map('regex_replace', '^(.*)$', 'Host(`\\1`)') | join(' || ') }}) && PathPrefix(`/websocket`)"
       entryPoints:
         - websecure
       service: odoo-{{ compose_project_name }}-websocket-service
