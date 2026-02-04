@@ -83,7 +83,7 @@
 
 - name: Initialize addon map
   set_fact:
-    selected_addon_map: {}
+    selected_addon_map: { }
     temp_addons_dir: "/tmp/odoo_addons_{{ inventory_hostname }}"
 
 - name: Build addon map from repo_list
@@ -97,6 +97,7 @@
           }
         })
       }}
+  loop: "{{ repo_list | default([]) }}"
 
 - name: Show selected addons
   debug:
