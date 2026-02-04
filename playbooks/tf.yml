@@ -25,7 +25,7 @@
     - name: Terraform init
       ansible.builtin.command: >
         terraform init -input=false
-        {% if tf_reconfigure %}-reconfigure{% endif %}
+        -reconfigure
         -backend-config="key=netbox/{{ tf_host }}/terraform.tfstate"
       args:
         chdir: "{{ tf_dir }}"
