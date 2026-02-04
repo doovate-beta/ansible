@@ -40,16 +40,11 @@
     - name: Terraform plan (opcional pero recomendado)
       ansible.builtin.command: >
         terraform plan -input=false
-        {% if tf_refresh is not none %}-refresh={{ tf_refresh | ternary('true','false') }}{% endif %}
-        {{ (tf_var_args + tf_target_args) | join(' ') }}
       args:
         chdir: "{{ tf_dir }}"
 
     - name: Terraform apply
       ansible.builtin.command: >
-        terraform apply -input=false
-        {% if tf_auto_approve %}-auto-approve{% endif %}
-        {% if tf_refresh is not none %}-refresh={{ tf_refresh | ternary('true','false') }}{% endif %}
-        {{ (tf_var_args + tf_target_args) | join(' ') }}
+        terraform apply -input=false -auto-approve
       args:
         chdir: "{{ tf_dir }}"
