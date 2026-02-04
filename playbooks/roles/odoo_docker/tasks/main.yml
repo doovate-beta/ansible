@@ -86,6 +86,16 @@
     selected_addon_map: { }
     temp_addons_dir: "/tmp/odoo_addons_{{ inventory_hostname }}"
 
+- name: Extract repository names from repo_list
+  set_fact:
+    repo_names: "{{ repo_list | default([]) | map('split', '|') | map('first') | map('regex_replace', '.*modulepack-(.*)\\.git$', '\\1') | list }}"
+
+- name: Check for duplicate repositories in different branches
+  fail:
+    msg: "Error: El repositorio '{{ item }}' está configurado en múltiples ramas diferentes. Solo se permite una rama por repositorio."
+  when: repo_names | select('equalto', item) | list | length > 1
+  loop: "{{ repo_names | unique }}"
+
 - name: Build addon map from repo_list
   set_fact:
     selected_addon_map: >-
