@@ -1,0 +1,48 @@
+- name: Ejecutar Terraform desde Ansible
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    tf_dir: "./terraform/odoo"
+    tf_host: "dv-addonstest"
+
+
+
+  tasks:
+    - name: Comprobar que terraform existe
+      ansible.builtin.command: terraform version
+      register: tf_version
+      changed_when: false
+
+    - name: Eliminar archivo credentials.auto.tfvars si existe
+      ansible.builtin.file:
+        path: "{{ tf_dir }}/credentials.auto.tfvars"
+        state: absent
+
+    - name: Generar archivo de configuración
+      ansible.builtin.copy:
+        content: |
+          hostname = "{{ tf_host }}"
+          subdomain = "addonstest"
+        dest: "{{ tf_dir }}/terraform.tfvars"
+        mode: '0644'
+
+    - name: Terraform init
+      ansible.builtin.command: >
+        terraform init -input=false
+        -reconfigure
+        -backend-config="key=netbox/{{ tf_host }}/terraform.tfstate"
+      args:
+        chdir: "{{ tf_dir }}"
+
+    - name: Terraform plan (opcional pero recomendado)
+      ansible.builtin.command: >
+        terraform plan -input=false
+      args:
+        chdir: "{{ tf_dir }}"
+
+    - name: Terraform apply
+      ansible.builtin.command: >
+        terraform apply -input=false -auto-approve
+      args:
+        chdir: "{{ tf_dir }}"

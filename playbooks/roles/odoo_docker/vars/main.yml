@@ -1,15 +1,2 @@
 odoo_path: /opt/odoo
 docker_launcher: dv-launcher
-odoo_addon_repository_map:
-  "muk":
-    url: "https://github.com/doovate/modulepack-muk.git"
-    branch: "main"
-  "accountingSpain":
-    url: "https://github.com/doovate/modulepack-accounting-spain.git"
-    branch: "main"
-  "docker":
-    url: "https://github.com/doovate/modulepack-docker.git"
-    branch: "main"
-  "accounting":
-    url: "https://github.com/doovate/modulepack-accounting.git"
-    branch: "main"

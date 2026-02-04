@@ -6,8 +6,6 @@
   roles:
     - docker
     - install_pip
-    - playwright
-    - portainer_agent
     - odoo_docker
     - loki_client
     - odoo_traefik_dynamic
