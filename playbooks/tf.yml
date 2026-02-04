@@ -14,6 +14,11 @@
       register: tf_version
       changed_when: false
 
+    - name: Eliminar archivo credentials.auto.tfvars si existe
+      ansible.builtin.file:
+        path: "{{ tf_dir }}/credentials.auto.tfvars"
+        state: absent
+
     - name: Generar archivo de configuración
       ansible.builtin.copy:
         content: |
