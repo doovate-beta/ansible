@@ -3,7 +3,7 @@
   gather_facts: false
 
   vars:
-    tf_dir: "/terraform/odoo"
+    tf_dir: "./terraform/odoo"
     tf_workspace: "default"                # o el que uses
     tf_reconfigure: true                   # <- esto controla -reconfigure
     tf_upgrade: false                      # opcional: -upgrade
