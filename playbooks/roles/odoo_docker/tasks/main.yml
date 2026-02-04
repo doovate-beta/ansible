@@ -81,25 +81,22 @@
   when: git_output.changed or env_file.changed
   ignore_errors: yes
 
-- name: Generate a list with the names of the addon packages that will be installed
+- name: Initialize addon map
   set_fact:
-    selected_addon_names: "{{ repo_list | default([]) }}"
+    selected_addon_map: {}
     temp_addons_dir: "/tmp/odoo_addons_{{ inventory_hostname }}"
 
-- name: Build base addon map from core repositories
+- name: Build addon map from repo_list
   set_fact:
     selected_addon_map: >-
       {{
-        odoo_addon_repository_map
-        | dict2items
-        | selectattr('key', 'in', selected_addon_names)
-        | items2dict
+        selected_addon_map | combine({
+          (item.split('|')[0] | regex_search('modulepack-(.*)\.git', '\\1') | first) + '-' + item.split('|')[1]: {
+            'url': 'https://' + item.split('|')[0],
+            'branch': item.split('|')[1]
+          }
+        })
       }}
-
-- name: Merge company addon map
-  set_fact:
-    selected_addon_map: "{{ selected_addon_map | combine(company_addon_map) }}"
-  when: company_addon_map is defined and company_addon_map
 
 - name: Show selected addons
   debug:
