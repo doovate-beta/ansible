@@ -1,60 +1,7 @@
 - name: Ejecutar Terraform desde Ansible
   hosts: localhost
   gather_facts: false
+  become: true
 
-  vars:
-    tf_dir: "./terraform/odoo"
-    tf_workspace: "default"                # o el que uses
-    tf_reconfigure: true                   # <- esto controla -reconfigure
-    tf_upgrade: false                      # opcional: -upgrade
-    tf_var_file: ""                        # ejemplo: "envs/prod.tfvars" o vacío
-    tf_vars:                               # variables sueltas (se convierten a -var k=v)
-      region: "eu-west-1"
-      env: "prod"
-
-    tf_auto_approve: true                  # para apply
-    tf_refresh: true                       # -refresh=true/false en plan/apply (según versión)
-    tf_targets: []                         # lista opcional de -target=...
-
-  tasks:
-    - name: Comprobar que terraform existe
-      ansible.builtin.command: terraform version
-      register: tf_version
-      changed_when: false
-
-    - name: Terraform init
-      ansible.builtin.command: >
-        terraform init -input=false
-        {% if tf_reconfigure %}-reconfigure{% endif %}
-        {% if tf_upgrade %}-upgrade{% endif %}
-      args:
-        chdir: "{{ tf_dir }}"
-
-    - name: Construir args de variables
-      ansible.builtin.set_fact:
-        tf_var_args: >-
-          {{
-            (tf_vars | dict2items | map('regex_replace', '^(.*)$', '-var \\1.key=\\1.value') | list)
-            + ([('-var-file ' ~ tf_var_file)] if (tf_var_file | length) > 0 else [])
-          }}
-
-    - name: Construir args targets
-      ansible.builtin.set_fact:
-        tf_target_args: "{{ tf_targets | map('regex_replace', '^(.*)$', '-target=\\1') | list }}"
-
-    - name: Terraform plan (opcional pero recomendado)
-      ansible.builtin.command: >
-        terraform plan -input=false
-        {% if tf_refresh is not none %}-refresh={{ tf_refresh | ternary('true','false') }}{% endif %}
-        {{ (tf_var_args + tf_target_args) | join(' ') }}
-      args:
-        chdir: "{{ tf_dir }}"
-
-    - name: Terraform apply
-      ansible.builtin.command: >
-        terraform apply -input=false
-        {% if tf_auto_approve %}-auto-approve{% endif %}
-        {% if tf_refresh is not none %}-refresh={{ tf_refresh | ternary('true','false') }}{% endif %}
-        {{ (tf_var_args + tf_target_args) | join(' ') }}
-      args:
-        chdir: "{{ tf_dir }}"
+  roles:
+    - terraform
