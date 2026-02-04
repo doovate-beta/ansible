@@ -1,7 +1,6 @@
 - name: Ejecutar Terraform desde Ansible
   hosts: localhost
   gather_facts: false
-  become: true
 
   vars:
     tf_dir: "./terraform/odoo"
