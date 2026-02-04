@@ -91,7 +91,7 @@
     selected_addon_map: >-
       {{
         selected_addon_map | combine({
-          (item.split('|')[0] | regex_search('modulepack-(.*)\.git', '\\1') | first) + '-' + item.split('|')[1]: {
+          (item.split('|')[0] | regex_replace('.*modulepack-(.*)\\.git$', '\\1')) + '-' + item.split('|')[1]: {
             'url': 'https://' + item.split('|')[0],
             'branch': item.split('|')[1]
           }
