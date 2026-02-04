@@ -14,12 +14,6 @@
       register: tf_version
       changed_when: false
 
-    - name: Generar archivo de credentials
-      ansible.builtin.copy:
-        content: "{{ tf_credentials_content }}"
-        dest: "{{ tf_dir }}/credentials.json"
-        mode: '0600'
-
     - name: Generar archivo de configuración
       ansible.builtin.copy:
         content: |
