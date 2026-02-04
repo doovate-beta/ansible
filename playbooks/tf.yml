@@ -17,9 +17,9 @@
     - name: Generar archivo de configuración
       ansible.builtin.copy:
         content: |
-          hostname = {{ tf_host }}
+          hostname = "{{ tf_host }}"
           subdomain = "addonstest"
-        dest: "{{ tf_dir }}/credentials.auto.tfvars"
+        dest: "{{ tf_dir }}/terraform.tfvars"
         mode: '0644'
 
     - name: Terraform init
