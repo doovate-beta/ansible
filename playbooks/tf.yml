@@ -28,32 +28,20 @@
 
     - name: Terraform init
       ansible.builtin.command: >
-        terraform init -input=false
+        terraform init -input=false 
         -reconfigure
         -backend-config="key=odoo/{{ host }}/terraform.tfstate"
       args:
         chdir: "{{ tf_dir }}"
 
-    - name: Terraform plan
+    - name: Terraform plan -no-color
       ansible.builtin.command: >
         terraform plan -input=false
       args:
         chdir: "{{ tf_dir }}"
-
-    - name: Ensure async directory exists
-      ansible.builtin.file:
-        path: ~/.ansible_async
-        state: directory
-        mode: '0700'
 
     - name: Terraform apply
       ansible.builtin.command: >
         terraform apply -input=false -auto-approve
       args:
         chdir: "{{ tf_dir }}"
-      register: tf_output
-      async: 3600
-      poll: 5
-
-
-
