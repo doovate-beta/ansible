@@ -46,7 +46,6 @@
       args:
         chdir: "{{ tf_dir }}"
       register: tf_output
-      async: 3600
-      poll: 5
+
 
 
