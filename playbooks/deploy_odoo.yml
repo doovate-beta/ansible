@@ -2,11 +2,12 @@
   hosts: all
   gather_facts: no
   tasks:
-    - set_fact:
-         full_run: '{{play_hosts == groups.all}}'
-    - fail:
-        msg: 'You must set a limit to run this playbook.'
-      when: full_run
+    - name: assert limit
+      run_once: yes
+      assert:
+        that:
+          - 'ansible_limit is defined'
+        fail_msg: Playbook must be run with a limit
 
 - name: Deploy and configure a set of Odoo containers
   hosts: "device_roles_odoo:&prod"
