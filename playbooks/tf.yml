@@ -34,14 +34,25 @@
       args:
         chdir: "{{ tf_dir }}"
 
-    - name: Terraform plan -no-color
+    - name: Terraform plan
       ansible.builtin.command: >
-        terraform plan -input=false
+        terraform plan -input=false -no-color
       args:
         chdir: "{{ tf_dir }}"
 
+    - name: Show Terraform outputs
+      ansible.builtin.command: >
+        terraform output -json
+      args:
+        chdir: "{{ tf_dir }}"
+      register: tf_outputs
+
+    - name: Display outputs
+      ansible.builtin.debug:
+        msg: "{{ tf_outputs.stdout | from_json }}"
+
     - name: Terraform apply
       ansible.builtin.command: >
-        terraform apply -input=false -auto-approve
+        terraform apply -input=false -auto-approve -no-color
       args:
         chdir: "{{ tf_dir }}"
