@@ -1,0 +1,10 @@
+- name: Deploy and configure all Odoo containers
+  hosts: "device_roles_odoo:&prod"
+  become: true
+
+  roles:
+    - docker
+    - install_pip
+    - odoo_docker
+    - loki_client
+    - odoo_traefik_dynamic

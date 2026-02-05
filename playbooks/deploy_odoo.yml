@@ -1,7 +1,12 @@
-- name: Deploy and configure Odoo containers
-#  hosts: "device_roles_odoo:&{{ target_env | default('prod') }}"
+- name: Deploy and configure a set of Odoo containers
   hosts: "device_roles_odoo:&prod"
   become: true
+
+  tasks:
+    - fail:
+        msg: "You must set a limit to launch this playbook"
+      when: ansible_limit is not defined
+      run_once: true
 
   roles:
     - docker
