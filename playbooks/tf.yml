@@ -4,9 +4,8 @@
 
   vars:
     tf_dir: "./terraform/odoo"
-    tf_host: "dv-addonstest"
-
-
+    host:
+    domain:
 
   tasks:
     - name: Comprobar que terraform existe
@@ -22,27 +21,38 @@
     - name: Generar archivo de configuración
       ansible.builtin.copy:
         content: |
-          hostname = "{{ tf_host }}"
-          subdomain = "addonstest"
+          hostname = "{{ host }}"
+          subdomain = "{{ domain }}"
         dest: "{{ tf_dir }}/terraform.tfvars"
         mode: '0644'
 
     - name: Terraform init
       ansible.builtin.command: >
-        terraform init -input=false
+        terraform init -input=false 
         -reconfigure
-        -backend-config="key=netbox/{{ tf_host }}/terraform.tfstate"
+        -backend-config="key=odoo/{{ host }}/terraform.tfstate"
       args:
         chdir: "{{ tf_dir }}"
 
-    - name: Terraform plan (opcional pero recomendado)
+    - name: Terraform plan
       ansible.builtin.command: >
-        terraform plan -input=false
+        terraform plan -input=false -no-color
       args:
         chdir: "{{ tf_dir }}"
+
+    - name: Show Terraform outputs
+      ansible.builtin.command: >
+        terraform output -json
+      args:
+        chdir: "{{ tf_dir }}"
+      register: tf_outputs
+
+    - name: Display outputs
+      ansible.builtin.debug:
+        msg: "{{ tf_outputs.stdout | from_json }}"
 
     - name: Terraform apply
       ansible.builtin.command: >
-        terraform apply -input=false -auto-approve
+        terraform apply -input=false -auto-approve -no-color
       args:
         chdir: "{{ tf_dir }}"

@@ -34,12 +34,6 @@ variable "cpu_type" {
   default     = "kvm64"
 }
 
-variable "cpu_cores" {
-  description = "Number of cores"
-  type        = number
-  default     = 1
-}
-
 variable "cpu_sockets" {
   description = "Number of CPU sockers"
   type        = number

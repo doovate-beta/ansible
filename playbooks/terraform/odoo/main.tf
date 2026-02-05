@@ -60,7 +60,7 @@ resource "proxmox_vm_qemu" "vm" {
 
   cpu {
     type    = var.cpu_type
-    cores   = var.cpu_cores
+    cores   = local.vm_vcpus
     sockets = var.cpu_sockets
     numa    = var.numa
   }
