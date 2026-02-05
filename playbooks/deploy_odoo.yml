@@ -1,12 +1,16 @@
+- name: Detect full run
+  hosts: all
+  gather_facts: no
+  tasks:
+    - set_fact:
+         full_run: '{{play_hosts == groups.all}}'
+    - fail:
+        msg: 'You must set a limit to run this playbook.'
+      when: full_run
+
 - name: Deploy and configure a set of Odoo containers
   hosts: "device_roles_odoo:&prod"
   become: true
-
-  tasks:
-    - fail:
-        msg: "You must set a limit to launch this playbook"
-      when: ansible_limit is not defined
-      run_once: true
 
   roles:
     - docker
