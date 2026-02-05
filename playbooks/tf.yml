@@ -30,18 +30,25 @@
       ansible.builtin.command: >
         terraform init -input=false
         -reconfigure
-        -backend-config="key=netbox/{{ host }}/terraform.tfstate"
+        -backend-config="key=odoo/{{ host }}/terraform.tfstate"
       args:
         chdir: "{{ tf_dir }}"
 
-    - name: Terraform plan (opcional pero recomendado)
+    - name: Terraform plan
       ansible.builtin.command: >
         terraform plan -input=false
       args:
         chdir: "{{ tf_dir }}"
 
     - name: Terraform apply
-      ansible.builtin.command: >
-        terraform apply -input=false -auto-approve
+      ansible.builtin.shell: |
+        terraform apply -input=false -auto-approve 2>&1
       args:
         chdir: "{{ tf_dir }}"
+      environment:
+        PYTHONUNBUFFERED: "1"
+        TF_IN_AUTOMATION: "true"
+      register: tf_output
+      async: 3600
+      poll: 3
+
